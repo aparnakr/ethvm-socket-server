@@ -66,7 +66,7 @@ class RethinkDB {
 
     setAllEvents(): void {
         let _this = this
-        r.table('blocks').changes().map((change) => {
+        r.table('blocks').changes().map((change:any) => {
             return change('new_val')
         }).merge((block: any) => {
             return {
@@ -75,7 +75,7 @@ class RethinkDB {
                     pendingTxs: r.table('data').get('cached').getField('pendingTxs')
                 }
             }
-        }).run(_this.dbConn, (err, cursor) => {
+        }).run(_this.dbConn, (err:Error, cursor:any) => {
             cursor.each((err: Error, block: blockLayout) => {
                 if (!err) {
                     _this.vmRunner.setStateRoot(block.stateRoot)
@@ -94,8 +94,8 @@ class RethinkDB {
                 }
             });
         });
-        r.table('transactions').changes().filter(r.row('new_val')('pending').eq(true)).run(_this.dbConn, (err, cursor) => {
-            cursor.each((err, row: r.ChangeSet<any, any>) => {
+        r.table('transactions').changes().filter(r.row('new_val')('pending').eq(true)).run(_this.dbConn, (err:Error, cursor:any) => {
+            cursor.each((err:Error, row: r.ChangeSet<any, any>) => {
                 if (!err) {
                     let _tx: txLayout = row.new_val
                     if (_tx.pending) {
@@ -121,7 +121,7 @@ class RethinkDB {
         if (!hash) {
             r.table("transactions").orderBy({ index: r.desc("numberAndHash") }).filter(
                 r.row("from").eq(r.args([new Buffer(address)])).or(r.row("to").eq(r.args([new Buffer(address)])))
-            ).limit(25).run(_this.dbConn, (err, cursor) => {
+            ).limit(25).run(_this.dbConn, (err:Error, cursor:any) => {
                 if (err) cb(err, null)
                 else sendResults(cursor)
             });
@@ -129,7 +129,7 @@ class RethinkDB {
             r.table("transactions").orderBy({ index: r.desc("numberAndHash") }).between(r.args([[r.minval, r.minval]]), r.args([[bNumber, new Buffer(hash)]]), { leftBound: "open", index: "numberAndHash" })
                 .filter(
                     r.or( r.row("from").eq(r.args([new Buffer(address)])), r.row("to").eq(r.args([new Buffer(address)])))
-                ).limit(25).run(_this.dbConn, function(err, cursor) {
+                ).limit(25).run(_this.dbConn, function(err:Error, cursor:any) {
                     if (err) cb(err, null)
                     else sendResults(cursor)
                 });
@@ -146,13 +146,13 @@ class RethinkDB {
             });
         }
         if (!hash) {
-            r.table("transactions").orderBy({ index: r.desc("numberAndHash") }).filter({ pending: false }).limit(25).run(_this.dbConn, (err, cursor) => {
+            r.table("transactions").orderBy({ index: r.desc("numberAndHash") }).filter({ pending: false }).limit(25).run(_this.dbConn, (err:Error, cursor:any) => {
                 if (err) cb(err, null)
                 else sendResults(cursor)
             });
         } else {
             r.table("transactions").orderBy({ index: r.desc("numberAndHash") }).between(r.args([[r.minval, r.minval]]), r.args([[bNumber, new Buffer(hash)]]), { leftBound: "open", index: "numberAndHash" })
-                .filter({ pending: false }).limit(25).run(_this.dbConn, function(err, cursor) {
+                .filter({ pending: false }).limit(25).run(_this.dbConn, function(err:Error, cursor:any) {
                     if (err) cb(err, null)
                     else sendResults(cursor)
                 });
@@ -204,7 +204,7 @@ class RethinkDB {
     }
 
     getTx(hash: string, cb: (err: Error, result: any) => void): void {
-        r.table("transactions").get(r.args([new Buffer(hash)])).merge(function(_tx) {
+        r.table("transactions").get(r.args([new Buffer(hash)])).merge(function(_tx:any) {
             return {
                 trace: r.db("eth_mainnet").table('traces').get(_tx('hash')),
                 logs: r.db("eth_mainnet").table('logs').get(_tx('hash'))
