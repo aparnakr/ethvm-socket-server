@@ -29,6 +29,6 @@ ds.getBlocks((_blocks: Array<blockLayout>)=>{
 })
 console.log("Start VmEngine")
 VmEngine.start()
-io.on('connection', (_socket: SocketIO.Socket) => { 
+io.on('connection', (_socket: SocketIO.Socket) => {
 	addEvents(_socket, rdb, vmRunner,VmEngine)
 });

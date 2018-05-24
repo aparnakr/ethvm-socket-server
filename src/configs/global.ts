@@ -26,7 +26,7 @@ export default {
 	RETHINK_DB:{
 		host: "localhost",
 		port: 28015,
-		db: "eth_mainnet",
+		db: "eth_mainnet", //change to thunder testnet
 		env_cert: "RETHINKDB_CERT",
 		env_cert_raw: "RETHINKDB_CERT_RAW",
 		env_url: "RETHINKDB_URL"

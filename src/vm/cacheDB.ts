@@ -1,3 +1,10 @@
+/*
+get(key: Buffer, options: IencOptions, cb: ImyCallbackType) : A function of class CacheDB that
+tries to get from Redis and if that doesnt work gets from get rpc.
+put(key: Buffer, val: Buffer, options: IencOptions, cb: ImyCallbackType) :calls cb(null, true)
+batch(ops: Array<IputValues>, options: IencOptions, cb: ImyCallbackType): calls cb(null, true)
+del(key: Buffer, cb: ImyCallbackType): calls cb(null, true)
+*/
 import * as Redis from 'ioredis'
 import * as rpc from 'json-rpc2'
 interface ImyCallbackType { (err: Error, result: any): any }
@@ -24,6 +31,7 @@ class CacheDB {
 	}
 	get(key: Buffer, options: IencOptions, cb: ImyCallbackType) {
 		let _this = this
+		// calls get from the Redis database , as a fallback calls the GETH_rpc
 		this.redisConn.get(key, (err: Error, result: string) => {
 			if (!err && result) {
 				cb(null, new Buffer(result, 'hex'))
@@ -42,8 +50,9 @@ class CacheDB {
 			}
 		})
 	}
+
 	put(key: Buffer, val: Buffer, options: IencOptions, cb: ImyCallbackType){ cb(null, true) }
-	batch(ops: Array<IputValues>, options: IencOptions, cb: ImyCallbackType){ 
+	batch(ops: Array<IputValues>, options: IencOptions, cb: ImyCallbackType){
 		cb(null, true)
 	}
 	del(key: Buffer, cb: ImyCallbackType) { cb(null, true) }

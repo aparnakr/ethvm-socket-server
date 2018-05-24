@@ -1,3 +1,12 @@
+/*
+
+Should Rewrite all these funcitons to read the data from the RLP files.
+
+getBalance (args: any, a: any) : calls eth_getBalance on the infura node using the ZeroClientProvider calls
+getAccount (args: any, a: any) : calls eth_getKeyValue on infura node using ZeroClientProvider
+get getAllTokens : calls getAllBalance on a smart contract deployed at "0xbe1ecf8e340f13071761e0eef054d9a511e1cb56"
+
+*/
 const ProviderEngine = require('web3-provider-engine')
 const CacheSubprovider = require('web3-provider-engine/subproviders/cache.js')
 const FixtureSubprovider = require('web3-provider-engine/subproviders/fixture.js')
@@ -50,6 +59,7 @@ VmEngine.getAllTokens = function(args:any,a:any){
   var argss = ["address", "bool", "bool", "bool", "uint256"]
   console.log("Get Token Balance for : ",args)
   var vals = [args, "true", "true", "true", 0]
+  // converts the call to a hex code call
   var encoded = utils.encodeCall("getAllBalance", argss, vals)
   var pl = createPayload({ jsonrpc: '2.0', method: 'eth_call', params: [{ to: "0xbe1ecf8e340f13071761e0eef054d9a511e1cb56", data: encoded }, "pending"], id: 1 })
   VmEngine.sendAsync(pl, a);
@@ -69,10 +79,9 @@ VmEngine.getAllTokens = function(args:any,a:any){
 
 
 
- 
+
 
 
 
 
 export default VmEngine
-
