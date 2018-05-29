@@ -103,7 +103,7 @@ let events: Array<_event> = [{
 {
     name: "getChartsData",
     onEvent: (_socket, _msg, _glob, _cb): void => {
-        _glob.rdb.getChartsData(_msg, _cb)
+        _glob.rdb.getChartsData(_cb)
     }
 },
 {

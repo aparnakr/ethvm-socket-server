@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "module": "none",
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "removeComments": true,
         "allowSyntheticDefaultImports": true,
         "sourceMap": true,

@@ -20,7 +20,7 @@ import { URL } from 'url'
 import { argv } from 'yargs' //'yargs' is a nmp library to build easier command line commands / interface
 import _ from 'lodash'
 import ds from '@/datastores'
-import { txLayout, blockLayout,chartLayout } from '@/typeLayouts'
+import { txLayout, blockLayout, chartLayout } from '@/typeLayouts'
 import { SmallBlock, SmallTx, BlockStats, common } from '@/libs'
 import VmRunner from '@/vm/vmRunner'
 class RethinkDB {

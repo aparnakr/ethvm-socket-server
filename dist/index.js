@@ -3688,6 +3688,17 @@ class RethinkDB {
             if (err) cb(err, null);else sendResults(count);
         });
     }
+    getChartsData(cb) {
+        let _this = this;
+        let sendResults = _cursor => {
+            _cursor.toArray((err, results) => {
+                if (err) cb(err, null);else cb(null, results);
+            });
+        };
+        r.table('blockscache').between(r.epochTime(1465556900), r.epochTime(1465656900), { index: 'timestamp' }).run(this.dbConn, function (err, count) {
+            if (err) cb(err, null);else sendResults(count);
+        });
+    }
     getBlock(hash, cb) {
         r.table('blocks').get(r.args([new Buffer(hash)])).run(this.dbConn, (err, result) => {
             if (err) cb(err, null);else cb(null, result);
@@ -3746,6 +3757,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Redis = __webpack_require__(33);
 const configs_1 = __webpack_require__(11);
 let redis = new Redis(configs_1.default.global.REDIS.URL);
+redis.on('error', function (error) {
+    console.log("hello");
+    console.dir(error);
+});
 let tableCache = {
     transactions: [],
     blocks: []
@@ -4211,6 +4226,11 @@ let events = [{
     name: "getTxs",
     onEvent: (_socket, _msg, _glob, _cb) => {
         _glob.rdb.getTxsOfAddress(_msg, _cb);
+    }
+}, {
+    name: "getChartsData",
+    onEvent: (_socket, _msg, _glob, _cb) => {
+        _glob.rdb.getChartsData(_cb);
     }
 }, {
     name: "ethCall",
@@ -11744,7 +11764,7 @@ function DefaultFixtures(opts) {
 /* 172 */
 /***/ (function(module, exports) {
 
-module.exports = {"_from":"web3-provider-engine@^14.0.4","_id":"web3-provider-engine@14.0.5","_inBundle":false,"_integrity":"sha512-1W/ue7VOwOMnmKgMY3HCpbixi6qhfl4r1dK8W597AwJLbrQ+twJKwWlFAedDpJjCc9MwRCCB3pyexW4HJVSiBg==","_location":"/web3-provider-engine","_phantomChildren":{"async":"2.6.0","async-eventemitter":"0.2.4","async-limiter":"1.0.0","bn.js":"4.11.8","create-hash":"1.1.3","ethereum-common":"0.2.0","ethereumjs-account":"2.0.4","ethereumjs-block":"1.7.0","ethjs-util":"0.1.4","fake-merkle-patricia-tree":"1.0.1","functional-red-black-tree":"1.0.1","keccak":"1.4.0","merkle-patricia-tree":"2.3.0","rlp":"2.0.0","rustbn.js":"0.1.1","safe-buffer":"5.1.1","secp256k1":"3.4.0"},"_requested":{"type":"range","registry":true,"raw":"web3-provider-engine@^14.0.4","name":"web3-provider-engine","escapedName":"web3-provider-engine","rawSpec":"^14.0.4","saveSpec":null,"fetchSpec":"^14.0.4"},"_requiredBy":["#USER","/"],"_resolved":"https://registry.npmjs.org/web3-provider-engine/-/web3-provider-engine-14.0.5.tgz","_shasum":"0283f880724af32970ecda473ac9382b6ff96e0a","_spec":"web3-provider-engine@^14.0.4","_where":"/home/kvhnuke/GitHub/ethvm-socket-server","author":"","browser":{"request":false,"ws":false},"bugs":{"url":"https://github.com/MetaMask/provider-engine/issues"},"bundleDependencies":false,"dependencies":{"async":"^2.5.0","backoff":"^2.5.0","clone":"^2.0.0","cross-fetch":"^2.1.0","eth-block-tracker":"^3.0.0","eth-json-rpc-infura":"^3.1.0","eth-sig-util":"^1.4.2","ethereumjs-block":"^1.2.2","ethereumjs-tx":"^1.2.0","ethereumjs-util":"^5.1.5","ethereumjs-vm":"^2.3.4","json-rpc-error":"^2.0.0","json-stable-stringify":"^1.0.1","promise-to-callback":"^1.0.0","readable-stream":"^2.2.9","request":"^2.67.0","semaphore":"^1.0.3","tape":"^4.4.0","ws":"^5.1.1","xhr":"^2.2.0","xtend":"^4.0.1"},"deprecated":false,"description":"[![Greenkeeper badge](https://badges.greenkeeper.io/MetaMask/provider-engine.svg)](https://greenkeeper.io/)","devDependencies":{"babel-cli":"^6.26.0","babel-preset-es2015":"^6.24.1","babel-preset-stage-0":"^6.24.1","browserify":"^16.1.1","ethjs":"^0.3.6"},"homepage":"https://github.com/MetaMask/provider-engine#readme","license":"MIT","main":"index.js","name":"web3-provider-engine","repository":{"type":"git","url":"git+https://github.com/MetaMask/provider-engine.git"},"scripts":{"build":"babel zero.js index.js -d dist/es5 && babel subproviders -d dist/es5/subproviders && babel util -d dist/es5/util","bundle":"mkdir -p ./dist && npm run bundle-engine && npm run bundle-zero","bundle-engine":"browserify -s ProviderEngine -e index.js -t [ babelify --presets [ es2015 ] ] > dist/ProviderEngine.js","bundle-zero":"browserify -s ZeroClientProvider -e zero.js -t [ babelify --presets [ es2015 ] ] > dist/ZeroClientProvider.js","prepublish":"npm run build && npm run bundle","test":"node test/index.js"},"version":"14.0.5"}
+module.exports = {"_args":[["web3-provider-engine@14.0.5","/home/akrishnan/ethvm-socket-server"]],"_from":"web3-provider-engine@14.0.5","_id":"web3-provider-engine@14.0.5","_inBundle":false,"_integrity":"sha512-1W/ue7VOwOMnmKgMY3HCpbixi6qhfl4r1dK8W597AwJLbrQ+twJKwWlFAedDpJjCc9MwRCCB3pyexW4HJVSiBg==","_location":"/web3-provider-engine","_phantomChildren":{"async":"2.6.0","async-eventemitter":"0.2.4","async-limiter":"1.0.0","bn.js":"4.11.8","create-hash":"1.1.3","ethereum-common":"0.2.0","ethereumjs-account":"2.0.4","ethereumjs-block":"1.7.0","ethjs-util":"0.1.4","fake-merkle-patricia-tree":"1.0.1","functional-red-black-tree":"1.0.1","keccak":"1.4.0","merkle-patricia-tree":"2.3.0","rlp":"2.0.0","rustbn.js":"0.1.1","safe-buffer":"5.1.1","secp256k1":"3.4.0"},"_requested":{"type":"version","registry":true,"raw":"web3-provider-engine@14.0.5","name":"web3-provider-engine","escapedName":"web3-provider-engine","rawSpec":"14.0.5","saveSpec":null,"fetchSpec":"14.0.5"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/web3-provider-engine/-/web3-provider-engine-14.0.5.tgz","_spec":"14.0.5","_where":"/home/akrishnan/ethvm-socket-server","author":"","browser":{"request":false,"ws":false},"bugs":{"url":"https://github.com/MetaMask/provider-engine/issues"},"dependencies":{"async":"^2.5.0","backoff":"^2.5.0","clone":"^2.0.0","cross-fetch":"^2.1.0","eth-block-tracker":"^3.0.0","eth-json-rpc-infura":"^3.1.0","eth-sig-util":"^1.4.2","ethereumjs-block":"^1.2.2","ethereumjs-tx":"^1.2.0","ethereumjs-util":"^5.1.5","ethereumjs-vm":"^2.3.4","json-rpc-error":"^2.0.0","json-stable-stringify":"^1.0.1","promise-to-callback":"^1.0.0","readable-stream":"^2.2.9","request":"^2.67.0","semaphore":"^1.0.3","tape":"^4.4.0","ws":"^5.1.1","xhr":"^2.2.0","xtend":"^4.0.1"},"description":"[![Greenkeeper badge](https://badges.greenkeeper.io/MetaMask/provider-engine.svg)](https://greenkeeper.io/)","devDependencies":{"babel-cli":"^6.26.0","babel-preset-es2015":"^6.24.1","babel-preset-stage-0":"^6.24.1","browserify":"^16.1.1","ethjs":"^0.3.6"},"homepage":"https://github.com/MetaMask/provider-engine#readme","license":"MIT","main":"index.js","name":"web3-provider-engine","repository":{"type":"git","url":"git+https://github.com/MetaMask/provider-engine.git"},"scripts":{"build":"babel zero.js index.js -d dist/es5 && babel subproviders -d dist/es5/subproviders && babel util -d dist/es5/util","bundle":"mkdir -p ./dist && npm run bundle-engine && npm run bundle-zero","bundle-engine":"browserify -s ProviderEngine -e index.js -t [ babelify --presets [ es2015 ] ] > dist/ProviderEngine.js","bundle-zero":"browserify -s ZeroClientProvider -e zero.js -t [ babelify --presets [ es2015 ] ] > dist/ZeroClientProvider.js","prepublish":"npm run build && npm run bundle","test":"node test/index.js"},"version":"14.0.5"}
 
 /***/ }),
 /* 173 */
