@@ -20,7 +20,7 @@ import { URL } from 'url'
 import { argv } from 'yargs' //'yargs' is a nmp library to build easier command line commands / interface
 import _ from 'lodash'
 import ds from '@/datastores'
-import { txLayout, blockLayout } from '@/typeLayouts'
+import { txLayout, blockLayout,chartLayout } from '@/typeLayouts'
 import { SmallBlock, SmallTx, BlockStats, common } from '@/libs'
 import VmRunner from '@/vm/vmRunner'
 class RethinkDB {
@@ -144,8 +144,8 @@ class RethinkDB {
         } else {
             r.table("transactions").orderBy({ index: r.desc("numberAndHash") }).between(r.args([[r.minval, r.minval]]), r.args([[bNumber, new Buffer(hash)]]), { leftBound: "open", index: "numberAndHash" })
                 .filter(
-                    r.or( r.row("from").eq(r.args([new Buffer(address)])), r.row("to").eq(r.args([new Buffer(address)])))
-                ).limit(25).run(_this.dbConn, function(err, cursor) {
+                    r.or(r.row("from").eq(r.args([new Buffer(address)])), r.row("to").eq(r.args([new Buffer(address)])))
+                ).limit(25).run(_this.dbConn, function (err, cursor) {
                     if (err) cb(err, null)
                     else sendResults(cursor)
                 });
@@ -169,7 +169,7 @@ class RethinkDB {
             });
         } else {
             r.table("transactions").orderBy({ index: r.desc("numberAndHash") }).between(r.args([[r.minval, r.minval]]), r.args([[bNumber, new Buffer(hash)]]), { leftBound: "open", index: "numberAndHash" })
-                .filter({ pending: false }).limit(25).run(_this.dbConn, function(err, cursor) {
+                .filter({ pending: false }).limit(25).run(_this.dbConn, function (err, cursor) {
                     if (err) cb(err, null)
                     else sendResults(cursor)
                 });
@@ -189,10 +189,10 @@ class RethinkDB {
 
     getTotalTxs(hash: string, cb: (err: Error, result: any) => void): void {
         var bhash = Buffer.from(hash.toLowerCase().replace('0x', ''), 'hex');
-         r.table("transactions").getAll(r.args([bhash]), { index: "cofrom" }).count().run(this.dbConn,function(err:Error,count:any){
+        r.table("transactions").getAll(r.args([bhash]), { index: "cofrom" }).count().run(this.dbConn, function (err: Error, count: any) {
             if (err) cb(err, null);
             else cb(null, count);
-     })
+        })
     }
 
     getTxsOfAddress(hash: string, cb: (err: Error, result: any) => void): void {
@@ -207,12 +207,29 @@ class RethinkDB {
             });
         }
         var bhash = Buffer.from(hash.toLowerCase().replace('0x', ''), 'hex');
-         r.table("transactions").getAll(r.args([bhash]), { index: "cofrom" }).limit(20).run(this.dbConn,function(err:Error,count:any){
+        r.table("transactions").getAll(r.args([bhash]), { index: "cofrom" }).limit(20).run(this.dbConn, function (err: Error, count: any) {
             if (err) cb(err, null);
             else sendResults(count)
-     })
+        })
     }
 
+    getChartsData(cb: (err: Error, result: any) => void): void {
+        let _this = this
+        let sendResults = (_cursor: any) => {
+            _cursor.toArray((err: Error, results: Array<chartLayout>) => {
+                if (err) cb(err, null)
+                else cb(null, results)
+            });
+        }
+        r.table('blockscache').between(r.epochTime(1465556900),
+            r.epochTime(1465656900), { index: 'timestamp' }
+        ).run(this.dbConn, function (err: Error, count: any) {
+            if (err) cb(err, null);
+            else sendResults(count)
+
+        });
+
+    }
 
     getBlock(hash: string, cb: (err: Error, result: any) => void): void {
         r.table('blocks').get(r.args([new Buffer(hash)])).run(this.dbConn, (err: Error, result: blockLayout) => {
@@ -222,7 +239,7 @@ class RethinkDB {
     }
 
     getTx(hash: string, cb: (err: Error, result: any) => void): void {
-        r.table("transactions").get(r.args([new Buffer(hash)])).merge(function(_tx) {
+        r.table("transactions").get(r.args([new Buffer(hash)])).merge(function (_tx) {
             return {
                 trace: r.db("eth_mainnet").table('traces').get(_tx('hash')),
                 logs: r.db("eth_mainnet").table('logs').get(_tx('hash'))
@@ -235,7 +252,7 @@ class RethinkDB {
 
     onNewBlock(_block: blockLayout) {
         let _this = this
-        console.log("go new block",_block.hash)
+        console.log("go new block", _block.hash)
         this.socketIO.to('blocks').emit('newBlock', _block)
         ds.addBlock(_block)
     }
