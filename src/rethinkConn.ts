@@ -241,8 +241,8 @@ class RethinkDB {
     getTx(hash: string, cb: (err: Error, result: any) => void): void {
         r.table("transactions").get(r.args([new Buffer(hash)])).merge(function (_tx) {
             return {
-                trace: r.db("eth_mainnet").table('traces').get(_tx('hash')),
-                logs: r.db("eth_mainnet").table('logs').get(_tx('hash'))
+                trace: r.db("thunder_testnet").table('traces').get(_tx('hash')),
+                logs: r.db("thunder_testnet").table('logs').get(_tx('hash'))
             }
         }).run(this.dbConn, (err: Error, result: txLayout) => {
             if (err) cb(err, null)
@@ -262,5 +262,4 @@ class RethinkDB {
         ds.addTransaction(_tx)
     }
 }
-
 export default RethinkDB

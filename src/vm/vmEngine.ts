@@ -29,8 +29,8 @@ var BN = require('bn.js')
 var VmEngine = ZeroClientProvider({
   // supports http and websockets
   // but defaults to infura's mainnet rest api
-  rpcUrl: 'https://mainnet.infura.io',
-  //rpcUrl: 'http://35.227.70.36:8545',
+  //rpcUrl: 'https://mainnet.infura.io', // to thunder's node
+  rpcUrl: 'http://127.0.0.1:8545',
   // rpcUrl: 'http://35.225.202.139:9545',  // all synced
   // rpcUrl: 'wss://mainnet.infura.io/ws',
   // rpcUrl: 'ws://localhost:8545/ws',
@@ -40,7 +40,6 @@ var VmEngine = ZeroClientProvider({
 // VmEngine.addProvider(new RpcSubprovider({
 //     rpcUrl: 'https://testrpc.metamask.io/',
 //   }))
-
 VmEngine.getBalance = function (args: any, a: any) {
   console.log("getbalance====== ==================")
   var payload = createPayload({ jsonrpc: '2.0', method: 'eth_getBalance', params: [args, "latest"], id: 1 })
