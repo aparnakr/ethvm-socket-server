@@ -1,25 +1,32 @@
 var Web3 = require("web3");
-var port = "ws://127.0.0.1:8546";
-var infura = "wss://rinkeby.infura.io/_ws";
-var provider = new Web3.providers.WebsocketProvider(infura)
-var web3 = new Web3(provider);
-var r = require('rethinkdb');
+var HttpHeaderProvider = require("httpheaderprovider");
+var port = "ws://127.0.0.1:8545";
 
+//websocket setup
+var infura_ws = "wss://rinkeby.infura.io/_ws";
+var provider_ws = new Web3.providers.WebsocketProvider(infura_ws)
+var web3 = new Web3(provider_ws);
+
+//rpc setup
+var web3rpc = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/V3sPPraTfVr8lKVhYfwj"));
+
+
+var r = require('rethinkdb');
 var DB_NAME = "thunder_testnet";
 var DB_TABLES = ["blocks", "blockscache", "transactions", "traces", "logs", "data"];
 
-//Reconnection infastructure
-provider.on('error', e => console.log('WS Error', e));
-provider.on('end', e => {
+//Websocket reconnection
+provider_ws.on('error', e => console.log('WS Error', e));
+provider_ws.on('end', e => {
     console.log('WS closed');
     console.log('Attempting to reconnect...');
-    provider = new Web3.providers.WebsocketProvider(infura);
+    provider_ws = new Web3.providers.WebsocketProvider(infura_ws);
 
-    provider.on('connect', function () {
+    provider_ws.on('connect', function () {
         console.log('WSS Reconnected');
     });
 
-    web3.setProvider(provider);
+    web3.setProvider(provider_ws);
 });
 
 //print transactions
@@ -70,15 +77,18 @@ function printBlock(block) {
 
 //subscribe to geth pub sub
 var subscription = web3.eth.subscribe("newBlockHeaders", function(error, result){
-  these full time engineers tif(error)
+  if(error)
     console.log(error);
 }).on("data", function(blockHeader){ //listen for notifications
   //rpc calls on notification
   console.log("heard new Header", blockHeader);
-  var blockNumber = web3.eth.blockNumber;
+  var blockNumber = blockHeader.number;
+  //var blockNumber = web3rpc.eth.blockNumber;
   console.log(blockNumber);
+  web3.setProvider(new Web3.providers.HttpProvider("https://rinkeby.infura.io/V3sPPraTfVr8lKVhYfwj"))
   var block = web3.eth.getBlock(blockNumber);
   printBlock(block);
+  web3.setProvider(provider_ws)
 });
 
 
